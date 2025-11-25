@@ -45,12 +45,21 @@ public class StatsService {
 		List<StudySession> sessions = studySessionRepository.findByUserAndDateBetween(user, start, end);
 		WeekFields wf = WeekFields.of(Locale.getDefault());
 
-		return sessions.stream()
+		Map<String, Integer> weeklyTotals = sessions.stream()
 				.collect(Collectors.groupingBy(session -> {
 					LocalDate date = session.getDate();
 					int weekNumber = date.get(wf.weekOfWeekBasedYear());
 					return date.getYear() + "-W" + weekNumber;
 				}, Collectors.summingInt(StudySession::getDurationMinutes)));
+
+		return weeklyTotals.entrySet().stream()
+				.sorted(Map.Entry.comparingByKey())
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						Map.Entry::getValue,
+						(a, b) -> a,
+						LinkedHashMap::new
+				));
 	}
 
 	public ProductivityReport buildAiReport(User user) {

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -18,7 +19,10 @@ public class StudySessionService {
 	private final StudySessionRepository studySessionRepository;
 
 	public List<StudySession> findForUser(User user) {
-		return studySessionRepository.findByUser(user);
+		return studySessionRepository.findByUser(user)
+				.stream()
+				.sorted(Comparator.comparing(StudySession::getDate).reversed())
+				.toList();
 	}
 
 	public StudySession saveSession(User user, Subject subject, StudySessionDTO dto) {

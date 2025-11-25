@@ -27,13 +27,15 @@ public class StudySession {
 	@JoinColumn(name = "subject_id")
 	private Subject subject;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	@JsonIgnore
 	private User user;
 
+	@Column(nullable = false)
 	private int durationMinutes;
 
+	@Column(nullable = false)
 	private LocalDate date;
 
 	private Integer startHour;

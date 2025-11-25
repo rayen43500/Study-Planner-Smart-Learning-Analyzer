@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 @Component
@@ -52,7 +54,16 @@ public class JwtUtils {
 	}
 
 	private Key key() {
-		return Keys.hmacShaKeyFor(jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+		return Keys.hmacShaKeyFor(hashSecret(jwtSecret));
+	}
+
+	private byte[] hashSecret(String secret) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			return digest.digest(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("Impossible de générer la clé JWT", e);
+		}
 	}
 }
 

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.LocalDate;
+
 @Controller
 @RequestMapping("/sessions")
 @RequiredArgsConstructor
@@ -33,8 +35,11 @@ public class StudySessionController {
 
 	@GetMapping("/add")
 	public String addSession(Model model) {
-		model.addAttribute("session", new StudySessionDTO());
-		model.addAttribute("subjects", subjectService.findForUser(userService.getCurrentUser()));
+		var user = userService.getCurrentUser();
+		StudySessionDTO dto = new StudySessionDTO();
+		dto.setDate(LocalDate.now());
+		model.addAttribute("session", dto);
+		model.addAttribute("subjects", subjectService.findForUser(user));
 		return "add-session";
 	}
 
