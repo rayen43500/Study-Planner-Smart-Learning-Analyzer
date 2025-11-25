@@ -32,7 +32,7 @@ public class SessionRestController {
 	}
 
 	@GetMapping("/{id}")
-	public StudySession getSession(@PathVariable Long id) {
+	public StudySession getSession(@PathVariable String id) {
 		return studySessionService.getOwnedSession(userService.getCurrentUser(), id);
 	}
 
@@ -44,7 +44,7 @@ public class SessionRestController {
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteSession(@PathVariable Long id) {
+	public void deleteSession(@PathVariable String id) {
 		studySessionService.deleteSession(userService.getCurrentUser(), id);
 	}
 }

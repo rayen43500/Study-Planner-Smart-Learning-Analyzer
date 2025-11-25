@@ -1,15 +1,16 @@
 package com.studyplanner.models;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "roles")
+@Document(collection = "roles")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,11 +20,9 @@ import lombok.Setter;
 public class Role {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@Enumerated(EnumType.STRING)
-	@Column(length = 20, nullable = false, unique = true)
+	@Indexed(unique = true)
 	private ERole name;
 }
 

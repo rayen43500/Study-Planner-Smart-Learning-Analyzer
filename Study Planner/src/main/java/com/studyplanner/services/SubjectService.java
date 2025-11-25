@@ -23,13 +23,13 @@ public class SubjectService {
 		return subjectRepository.save(subject);
 	}
 
-	public Subject getOwnedSubject(User user, Long id) {
+	public Subject getOwnedSubject(User user, String id) {
 		return subjectRepository.findById(id)
 				.filter(subject -> subject.getUser().getId().equals(user.getId()))
 				.orElseThrow(() -> new IllegalArgumentException("Matière introuvable"));
 	}
 
-	public void deleteSubject(User user, Long id) {
+	public void deleteSubject(User user, String id) {
 		Subject subject = getOwnedSubject(user, id);
 		subjectRepository.delete(subject);
 	}

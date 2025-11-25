@@ -23,7 +23,7 @@ public class StatsService {
 	private final StudySessionRepository studySessionRepository;
 	private final ProductivityAnalyzer productivityAnalyzer;
 
-	public Map<LocalDate, Integer> getDailyTotals(User user, int days) {
+	public Map<String, Integer> getDailyTotals(User user, int days) {
 		LocalDate end = LocalDate.now();
 		LocalDate start = end.minusDays(days - 1L);
 		List<StudySession> sessions = studySessionRepository.findByUserAndDateBetween(user, start, end);
@@ -32,9 +32,9 @@ public class StatsService {
 				.collect(Collectors.groupingBy(StudySession::getDate,
 						Collectors.summingInt(StudySession::getDurationMinutes)));
 
-		Map<LocalDate, Integer> ordered = new LinkedHashMap<>();
+		Map<String, Integer> ordered = new LinkedHashMap<>();
 		for (LocalDate day = start; !day.isAfter(end); day = day.plusDays(1)) {
-			ordered.put(day, totals.getOrDefault(day, 0));
+			ordered.put(day.toString(), totals.getOrDefault(day, 0));
 		}
 		return ordered;
 	}

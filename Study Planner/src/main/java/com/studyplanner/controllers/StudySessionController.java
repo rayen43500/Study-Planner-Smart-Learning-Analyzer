@@ -56,7 +56,7 @@ public class StudySessionController {
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteSession(@PathVariable Long id) {
+	public String deleteSession(@PathVariable String id) {
 		var user = userService.getCurrentUser();
 		studySessionService.deleteSession(user, id);
 		return "redirect:/sessions";

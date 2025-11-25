@@ -2,11 +2,11 @@ package com.studyplanner.repositories;
 
 import com.studyplanner.models.ERole;
 import com.studyplanner.models.Role;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends MongoRepository<Role, String> {
 	Optional<Role> findByName(ERole name);
 }
 

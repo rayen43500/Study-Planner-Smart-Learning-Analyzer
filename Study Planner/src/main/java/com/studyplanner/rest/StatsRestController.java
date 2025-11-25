@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
@@ -20,7 +19,7 @@ public class StatsRestController {
 	private final UserService userService;
 
 	@GetMapping("/daily")
-	public Map<LocalDate, Integer> daily() {
+	public Map<String, Integer> daily() {
 		return statsService.getDailyTotals(userService.getCurrentUser(), 7);
 	}
 

@@ -46,7 +46,7 @@ public class SubjectController {
 	}
 
 	@GetMapping("/edit/{id}")
-	public String editSubject(@PathVariable Long id, Model model) {
+	public String editSubject(@PathVariable String id, Model model) {
 		var user = userService.getCurrentUser();
 		model.addAttribute("subject", subjectService.getOwnedSubject(user, id));
 		return "add-subject";
@@ -63,7 +63,7 @@ public class SubjectController {
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteSubject(@PathVariable Long id) {
+	public String deleteSubject(@PathVariable String id) {
 		var user = userService.getCurrentUser();
 		subjectService.deleteSubject(user, id);
 		return "redirect:/subjects";

@@ -34,7 +34,7 @@ public class SubjectRestController {
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteSubject(@PathVariable Long id) {
+	public void deleteSubject(@PathVariable String id) {
 		subjectService.deleteSubject(userService.getCurrentUser(), id);
 	}
 }
