@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -51,7 +50,7 @@ public class WebSecurityConfig {
 						.defaultSuccessUrl("/dashboard", true)
 						.permitAll())
 				.logout(logout -> logout
-						.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+						.logoutUrl("/logout")
 						.logoutSuccessUrl("/login?logout")
 						.permitAll())
 				.authenticationProvider(authenticationProvider());
@@ -62,8 +61,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
