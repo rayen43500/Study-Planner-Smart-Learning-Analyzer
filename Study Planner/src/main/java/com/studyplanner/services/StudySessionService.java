@@ -32,11 +32,14 @@ public class StudySessionService {
 		return studySessionRepository.save(session);
 	}
 
-	public void deleteSession(User user, Long id) {
-		StudySession session = studySessionRepository.findById(id)
+	public StudySession getOwnedSession(User user, Long id) {
+		return studySessionRepository.findById(id)
 				.filter(s -> s.getUser().getId().equals(user.getId()))
 				.orElseThrow(() -> new IllegalArgumentException("Session introuvable"));
-		studySessionRepository.delete(session);
+	}
+
+	public void deleteSession(User user, Long id) {
+		studySessionRepository.delete(getOwnedSession(user, id));
 	}
 
 	public List<StudySession> findBetween(User user, LocalDate start, LocalDate end) {
