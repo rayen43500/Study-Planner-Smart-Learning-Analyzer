@@ -33,7 +33,8 @@ public class StudySession {
 	private int durationMinutes;
 
 	private LocalDate date;
-
 	private Integer startHour;
+
+	private Integer startMinute;
 }
 

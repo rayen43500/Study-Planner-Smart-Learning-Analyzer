@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequestMapping("/sessions")
@@ -28,37 +32,82 @@ public class StudySessionController {
 
 	@GetMapping
 	public String listSessions(Model model) {
-		var user = userService.getCurrentUser();
-		model.addAttribute("sessions", studySessionService.findForUser(user));
-		return "sessions";
+		try {
+			var user = userService.getCurrentUser();
+			var sessions = studySessionService.findForUser(user);
+			model.addAttribute("sessions", sessions != null ? sessions : List.of());
+			return "sessions";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errorMessage", "Erreur lors du chargement des sessions : " + e.getMessage());
+			model.addAttribute("sessions", List.of());
+			return "sessions";
+		}
 	}
 
 	@GetMapping("/add")
 	public String addSession(Model model) {
 		var user = userService.getCurrentUser();
+		var subjects = subjectService.findForUser(user);
 		StudySessionDTO dto = new StudySessionDTO();
 		dto.setDate(LocalDate.now());
+		dto.setStartHour(9);
+		dto.setStartMinute(0);
+		if (!subjects.isEmpty()) {
+			dto.setSubjectId(subjects.get(0).getId());
+		}
 		model.addAttribute("session", dto);
-		model.addAttribute("subjects", subjectService.findForUser(user));
+		model.addAttribute("subjects", subjects);
+		model.addAttribute("hasSubjects", !subjects.isEmpty());
 		return "add-session";
 	}
 
 	@PostMapping
-	public String createSession(@Valid @ModelAttribute("session") StudySessionDTO dto, BindingResult bindingResult, Model model) {
+	public String createSession(@Valid @ModelAttribute("session") StudySessionDTO dto,
+			BindingResult bindingResult,
+			Model model,
+			RedirectAttributes redirectAttributes,
+			HttpServletRequest request,
+			@RequestParam(value = "stayOnPage", required = false) String stayOnPage) {
 		var user = userService.getCurrentUser();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("subjects", subjectService.findForUser(user));
+			// add subjects back for the form
+			var subjects = subjectService.findForUser(user);
+			model.addAttribute("subjects", subjects);
+			model.addAttribute("hasSubjects", !subjects.isEmpty());
+			// log submitted parameters to help debug why subjectId may be empty
+			var params = request.getParameterMap();
+			System.out.println("[DEBUG] createSession binding errors. Request parameters:");
+			params.forEach((k, v) -> System.out.println(k + " = " + String.join(",", v)));
+			model.addAttribute("requestParams", params);
 			return "add-session";
 		}
-		var subject = subjectService.getOwnedSubject(user, dto.getSubjectId());
-		studySessionService.saveSession(user, subject, dto);
-		return "redirect:/sessions";
+		try {
+			var subject = subjectService.getOwnedSubject(user, dto.getSubjectId());
+			studySessionService.saveSession(user, subject, dto);
+			redirectAttributes.addFlashAttribute("successMessage", "Session enregistrée avec succès.");
+			if (stayOnPage != null) {
+				return "redirect:/sessions/add";
+			}
+			return "redirect:/sessions";
+		} catch (IllegalArgumentException e) {
+			var subjects = subjectService.findForUser(user);
+			model.addAttribute("subjects", subjects);
+			model.addAttribute("hasSubjects", !subjects.isEmpty());
+			model.addAttribute("errorMessage", e.getMessage());
+			return "add-session";
+		}
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteSession(@PathVariable String id) {
+	public String deleteSession(@PathVariable String id, RedirectAttributes redirectAttributes) {
 		var user = userService.getCurrentUser();
-		studySessionService.deleteSession(user, id);
+		try {
+			studySessionService.deleteSession(user, id);
+			redirectAttributes.addFlashAttribute("successMessage", "Session supprimée avec succès.");
+		} catch (IllegalArgumentException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+		}
 		return "redirect:/sessions";
 	}
 }

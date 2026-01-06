@@ -1,79 +1,87 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Statistiques - Study Planner</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Statistiques</h3>
-        <a class="btn btn-secondary" th:href="@{/dashboard}">Dashboard</a>
+<head th:replace="~{fragments/layout :: head('Statistiques')}"></head>
+<body class="app-body">
+<header th:replace="~{fragments/layout :: appNav('stats')}"></header>
+<div class="app-shell">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="page-title mb-1">Statistiques</h1>
+            <p class="page-subtitle">Suivez l'énergie TeamLife sur les dernières semaines.</p>
+        </div>
+        <a class="btn btn-outline" th:href="@{/sessions}">Voir les sessions</a>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">Derniers 7 jours</div>
-                <div class="card-body">
-                    <canvas id="daily"></canvas>
-                </div>
-            </div>
+    <div class="app-grid mb-4">
+        <div class="app-card">
+            <p class="card-title">Derniers 7 jours</p>
+            <canvas id="daily"></canvas>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">8 dernières semaines</div>
-                <div class="card-body">
-                    <canvas id="weekly"></canvas>
-                </div>
-            </div>
+        <div class="app-card">
+            <p class="card-title">8 dernières semaines</p>
+            <canvas id="weekly"></canvas>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">Analyse intelligente</div>
-        <div class="card-body">
-            <p><strong>Heure la plus active :</strong> <span th:text="${aiReport.mostActiveHour}">0</span>h</p>
-            <p><strong>Score de régularité :</strong> <span th:text="${aiReport.consistencyScore}">0</span>/10</p>
-            <p><strong>Score de productivité :</strong> <span th:text="${aiReport.productivityScore}">0</span>/10</p>
-            <ul>
-                <li th:each="suggestion : ${aiReport.suggestions}" th:text="${suggestion}"></li>
-            </ul>
+    <div class="app-card">
+        <p class="card-title">Analyse intelligente</p>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="metric" th:text="${aiReport.mostActiveHour}">0</div>
+                <small class="text-muted">Heure la plus active (h)</small>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="metric" th:text="${aiReport.consistencyScore}">0</div>
+                <small class="text-muted">Score régularité /10</small>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="metric" th:text="${aiReport.productivityScore}">0</div>
+                <small class="text-muted">Score productivité /10</small>
+            </div>
         </div>
+        <ul class="mb-0">
+            <li th:each="suggestion : ${aiReport.suggestions}" th:text="${suggestion}"></li>
+        </ul>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const dailyLabels = [[${dailyStats.keySet()}]];
-    const dailyValues = [[${dailyStats.values()}]];
-    const weeklyLabels = [[${weeklyStats.keySet()}]];
-    const weeklyValues = [[${weeklyStats.values()}]];
+    const dailyLabels = /*[[${dailyStatsKeys}]]*/ [];
+    const dailyValues = /*[[${dailyStatsValues}]]*/ [];
+    const weeklyLabels = /*[[${weeklyStatsKeys}]]*/ [];
+    const weeklyValues = /*[[${weeklyStatsValues}]]*/ [];
 
     new Chart(document.getElementById('daily'), {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: dailyLabels,
             datasets: [{
                 label: 'Minutes',
-                borderColor: '#198754',
+                backgroundColor: 'rgba(93,214,192,0.6)',
+                borderColor: 'rgba(93,214,192,1)',
+                borderWidth: 1,
                 data: dailyValues
             }]
-        }
+        },
+        options: { scales: { y: { beginAtZero: true } } }
     });
 
     new Chart(document.getElementById('weekly'), {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: weeklyLabels,
             datasets: [{
                 label: 'Minutes',
-                backgroundColor: '#0d6efd',
+                backgroundColor: 'rgba(108,99,255,0.15)',
+                borderColor: 'rgba(108,99,255,1)',
+                fill: true,
+                tension: 0.35,
                 data: weeklyValues
             }]
-        }
+        },
+        options: { scales: { y: { beginAtZero: true } } }
     });
     /*]]>*/
 </script>

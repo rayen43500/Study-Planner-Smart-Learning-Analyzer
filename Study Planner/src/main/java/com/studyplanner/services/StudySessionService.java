@@ -32,6 +32,7 @@ public class StudySessionService {
 				.durationMinutes(dto.getDurationMinutes())
 				.date(dto.getDate())
 				.startHour(dto.getStartHour())
+				.startMinute(dto.getStartMinute())
 				.build();
 		return studySessionRepository.save(session);
 	}

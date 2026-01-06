@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -37,26 +36,73 @@ public class UserService {
 		}
 	}
 
-	@Transactional
 	public User registerUser(SignupRequest request, boolean admin) {
+		System.out.println("\n========== [DEBUG] DÉBUT ENREGISTREMENT UTILISATEUR ==========");
+		System.out.println("[DEBUG] Username: " + (request.getUsername() != null ? request.getUsername() : "NULL"));
+		System.out.println("[DEBUG] Email: " + (request.getEmail() != null ? request.getEmail() : "NULL"));
+		
+		// Vérifier les doublons
 		if (userRepository.existsByUsername(request.getUsername())) {
+			System.out.println("[DEBUG] ❌ Nom d'utilisateur déjà utilisé: " + request.getUsername());
 			throw new IllegalArgumentException("Le nom d'utilisateur est déjà utilisé.");
 		}
 		if (userRepository.existsByEmail(request.getEmail())) {
+			System.out.println("[DEBUG] ❌ Email déjà utilisé: " + request.getEmail());
 			throw new IllegalArgumentException("L'email est déjà utilisé.");
 		}
+		System.out.println("[DEBUG] ✓ Vérifications de doublons passées");
 
+		// Récupérer le rôle
 		Set<Role> roles = new HashSet<>();
 		roleRepository.findByName(admin ? ERole.ADMIN : ERole.USER)
 				.ifPresent(roles::add);
+		System.out.println("[DEBUG] Rôle assigné: " + (admin ? "ADMIN" : "USER") + " (" + roles.size() + " rôle(s))");
 
+		// Créer l'utilisateur
 		User user = User.builder()
 				.username(request.getUsername())
 				.email(request.getEmail())
 				.password(passwordEncoder.encode(request.getPassword()))
 				.roles(roles)
 				.build();
-		return userRepository.save(user);
+		System.out.println("[DEBUG] Objet User créé (avant sauvegarde)");
+
+		// Sauvegarder en MongoDB
+		System.out.println("[DEBUG] >>> Début de la sauvegarde en MongoDB...");
+		try {
+			User savedUser = userRepository.save(user);
+			System.out.println("[DEBUG] ✓✓✓ Utilisateur SAUVEGARDÉ avec succès! ✓✓✓");
+			System.out.println("[DEBUG] ID MongoDB: " + savedUser.getId());
+			System.out.println("[DEBUG] Username: " + savedUser.getUsername());
+			System.out.println("[DEBUG] Email: " + savedUser.getEmail());
+			
+			// Vérification immédiate que l'utilisateur est bien en base
+			Optional<User> verify = userRepository.findById(savedUser.getId());
+			if (verify.isPresent()) {
+				System.out.println("[DEBUG] ✓✓✓ VÉRIFICATION RÉUSSIE: Utilisateur trouvé en base de données MongoDB! ✓✓✓");
+			} else {
+				System.out.println("[DEBUG] ❌❌❌ ERREUR CRITIQUE: Utilisateur NON trouvé après sauvegarde! ❌❌❌");
+			}
+			
+			// Vérification par username
+			Optional<User> verifyByUsername = userRepository.findByUsername(savedUser.getUsername());
+			if (verifyByUsername.isPresent()) {
+				System.out.println("[DEBUG] ✓✓✓ Vérification par username RÉUSSIE: Utilisateur trouvé! ✓✓✓");
+			} else {
+				System.out.println("[DEBUG] ❌❌❌ ERREUR: Utilisateur non trouvé par username! ❌❌❌");
+			}
+			
+			// Compter tous les utilisateurs
+			long totalUsers = userRepository.count();
+			System.out.println("[DEBUG] Nombre total d'utilisateurs en base: " + totalUsers);
+			
+			System.out.println("========== [DEBUG] FIN ENREGISTREMENT UTILISATEUR ==========\n");
+			return savedUser;
+		} catch (Exception e) {
+			System.out.println("[DEBUG] ❌❌❌ EXCEPTION lors de la sauvegarde: " + e.getMessage());
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	public Optional<User> findByUsername(String username) {

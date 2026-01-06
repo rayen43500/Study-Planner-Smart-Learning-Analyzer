@@ -27,7 +27,10 @@ public class WebSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(csrf -> csrf.disable())
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers("/api/**")
+						.ignoringRequestMatchers("/api/auth/**")
+				)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(
@@ -47,11 +50,17 @@ public class WebSecurityConfig {
 				)
 				.formLogin(login -> login
 						.loginPage("/login")
+						.loginProcessingUrl("/login")
 						.defaultSuccessUrl("/dashboard", true)
+						.failureUrl("/login?error=true")
+						.usernameParameter("username")
+						.passwordParameter("password")
 						.permitAll())
 				.logout(logout -> logout
 						.logoutUrl("/logout")
-						.logoutSuccessUrl("/login?logout")
+						.logoutSuccessUrl("/login?logout=true")
+						.invalidateHttpSession(true)
+						.deleteCookies("JSESSIONID")
 						.permitAll())
 				.authenticationProvider(authenticationProvider());
 

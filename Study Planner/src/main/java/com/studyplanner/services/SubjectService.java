@@ -6,7 +6,11 @@ import com.studyplanner.repositories.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +25,34 @@ public class SubjectService {
 	public Subject saveSubject(User user, Subject subject) {
 		subject.setUser(user);
 		return subjectRepository.save(subject);
+	}
+
+	public List<Subject> saveSubjects(User user, List<String> names) {
+		if (names == null || names.isEmpty()) {
+			return List.of();
+		}
+		var existing = new HashSet<String>();
+		subjectRepository.findByUser(user).forEach(subject ->
+				existing.add(normalize(subject.getName())));
+
+		List<Subject> saved = new ArrayList<>();
+		for (String rawName : names) {
+			var cleaned = normalize(rawName);
+			if (cleaned.isEmpty() || existing.contains(cleaned)) {
+				continue;
+			}
+			Subject subject = Subject.builder()
+					.name(rawName.trim())
+					.user(user)
+					.build();
+			saved.add(subjectRepository.save(subject));
+			existing.add(cleaned);
+		}
+		return saved;
+	}
+
+	private String normalize(String value) {
+		return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
 	}
 
 	public Subject getOwnedSubject(User user, String id) {

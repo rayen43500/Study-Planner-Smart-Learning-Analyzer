@@ -1,36 +1,109 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Nouvelle session - Study Planner</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container mt-4">
-    <h3>Ajouter une session</h3>
-    <form th:action="@{/sessions}" th:object="${session}" method="post">
-        <div class="mb-3">
-            <label class="form-label">Matière</label>
-            <select class="form-select" th:field="*{subjectId}" required>
-                <option th:each="subject : ${subjects}" th:value="${subject.id}" th:text="${subject.name}"></option>
-            </select>
+<head th:replace="~{fragments/layout :: head('Ajouter une session')}"></head>
+<body class="app-body">
+<header th:replace="~{fragments/layout :: appNav('sessions')}"></header>
+<div class="app-shell">
+    <a class="cta-link d-inline-block mb-3" th:href="@{/sessions}">← Retour aux sessions</a>
+
+    <div class="app-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2 class="mb-1">Ajouter une session</h2>
+                <p class="text-muted mb-0">Planifiez plusieurs sessions en restant sur cette page.</p>
+            </div>
+            <a class="btn btn-outline" th:href="@{/subjects}">Gérer les matières</a>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Durée (minutes)</label>
-            <input class="form-control" type="number" min="1" th:field="*{durationMinutes}" required>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${!hasSubjects}" class="alert alert-info">
+            Vous devez créer au moins une matière avant de planifier une session.
+            <a class="cta-link" th:href="@{/subjects/add}">Ajouter une matière.</a>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Date</label>
-            <input class="form-control" type="date" th:field="*{date}" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Heure de début</label>
-            <input class="form-control" type="number" min="0" max="23" th:field="*{startHour}">
-        </div>
-        <button class="btn btn-primary" type="submit">Enregistrer</button>
-        <a class="btn btn-secondary" th:href="@{/sessions}">Retour</a>
-    </form>
+
+        <form th:action="@{/sessions}" th:object="${session}" method="post" id="addSessionForm" class="form-shell">
+            <fieldset th:attr="disabled=${!hasSubjects} ? 'disabled' : null">
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Matière</label>
+                    <select class="form-select" th:field="*{subjectId}" required>
+                        <option value="" th:if="${session.subjectId == null}" disabled selected>-- Choisir une matière --</option>
+                        <option th:each="subject : ${subjects}"
+                                th:value="${subject.id}"
+                                th:text="${subject.name}"></option>
+                    </select>
+                    <div class="text-danger small" th:errors="*{subjectId}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Durée (minutes)</label>
+                    <input class="form-control" type="number" min="1" th:field="*{durationMinutes}" required>
+                    <div class="text-danger small" th:errors="*{durationMinutes}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input class="form-control" type="date" th:field="*{date}" required>
+                    <div class="text-danger small" th:errors="*{date}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Heure de début</label>
+                    <div class="d-flex gap-2">
+                        <input class="form-control" type="number" min="0" max="23" th:field="*{startHour}" required>
+                        <input class="form-control" type="number" min="0" max="59" th:field="*{startMinute}" required placeholder="minutes">
+                    </div>
+                    <div class="text-danger small" th:errors="*{startHour}"></div>
+                    <div class="text-danger small" th:errors="*{startMinute}"></div>
+                </div>
+            </fieldset>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary" type="submit" th:disabled="${!hasSubjects}">Enregistrer</button>
+                <button class="btn btn-outline" type="submit" name="stayOnPage" value="true" th:disabled="${!hasSubjects}">Enregistrer et ajouter</button>
+            </div>
+        </form>
+    </div>
 </div>
+<script>
+    (function(){
+        const form = document.getElementById('addSessionForm');
+        if (!form) return;
+        form.addEventListener('submit', function(e){
+            const subject = form.querySelector('select[name="subjectId"]');
+            const hour = form.querySelector('input[name="startHour"]');
+            const minute = form.querySelector('input[name="startMinute"]');
+            if (subject && subject.disabled) {
+                return;
+            }
+            if (subject && !subject.value) {
+                e.preventDefault();
+                alert('Veuillez sélectionner une matière.');
+                subject.focus();
+                return false;
+            }
+            if (hour) {
+                const h = parseInt(hour.value, 10);
+                if (isNaN(h) || h < 0 || h > 23) {
+                    e.preventDefault();
+                    alert('Heure invalide (0-23).');
+                    hour.focus();
+                    return false;
+                }
+            }
+            if (minute) {
+                const m = parseInt(minute.value, 10);
+                if (isNaN(m) || m < 0 || m > 59) {
+                    e.preventDefault();
+                    alert('Minutes invalides (0-59).');
+                    minute.focus();
+                    return false;
+                }
+            }
+        });
+    })();
+</script>
 </body>
 </html>
 

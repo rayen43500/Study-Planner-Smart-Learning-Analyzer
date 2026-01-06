@@ -1,36 +1,43 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Créer un compte - Study Planner</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body class="bg-light">
-<div class="container mt-5">
+<head th:replace="~{fragments/layout :: head('Créer un compte')}"></head>
+<body class="app-body d-flex align-items-center" style="min-height: 100vh;">
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h4 class="text-center mb-4">Créer un compte</h4>
-                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-                    <form th:action="@{/register}" th:object="${user}" method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Nom d'utilisateur</label>
-                            <input class="form-control" type="text" th:field="*{username}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input class="form-control" type="email" th:field="*{email}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mot de passe</label>
-                            <input class="form-control" type="password" th:field="*{password}" required>
-                        </div>
-                        <button class="btn btn-success w-100" type="submit">Créer</button>
-                    </form>
-                    <div class="mt-3 text-center">
-                        <a th:href="@{/login}">Retour à la connexion</a>
+        <div class="col-lg-4 col-md-6">
+            <div class="app-card">
+                <div class="text-center mb-4">
+                    <span class="brand-pill d-inline-block mb-2">TeamLife</span>
+                    <h2>Rejoindre Study Planner</h2>
+                    <p class="text-muted">Créez votre hub d'organisation personnalisé.</p>
+                </div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <form th:action="@{/register}" th:object="${user}" method="post" class="form-shell">
+                    <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                        <ul class="mb-0">
+                            <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                        </ul>
                     </div>
+                    <div>
+                        <label class="form-label">Nom d'utilisateur</label>
+                        <input class="form-control" type="text" th:field="*{username}" required>
+                        <div class="text-danger small" th:errors="*{username}"></div>
+                    </div>
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" th:field="*{email}" required>
+                        <div class="text-danger small" th:errors="*{email}"></div>
+                    </div>
+                    <div>
+                        <label class="form-label">Mot de passe</label>
+                        <input class="form-control" type="password" th:field="*{password}" required>
+                        <div class="text-danger small" th:errors="*{password}"></div>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">Créer mon compte</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <span class="text-muted">Déjà inscrit ?</span>
+                    <a class="cta-link" th:href="@{/login}">Retour à la connexion</a>
                 </div>
             </div>
         </div>

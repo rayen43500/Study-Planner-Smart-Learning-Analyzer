@@ -4,8 +4,6 @@ This template provides a minimal setup to get React working in Vite with HMR and
 
 Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 ## React Compiler
 
@@ -70,4 +68,26 @@ export default defineConfig([
     },
   },
 ])
+
+## Gemini / modèle externe
+
+Ce projet inclut une intégration client légère qui peut appeler un proxy serveur
+pour interroger un modèle (ex: `gemini-1.5-flash`). Par défaut l'app fonctionne
+en local sans modèle externe. Pour utiliser Gemini (ou tout modèle remote) :
+
+- Créer un proxy serveur sécurisé (ne mettez jamais vos clés/API dans le frontend).
+- Exemple de proxy Node/Express : `server/gemini-proxy-example.js` (utilise
+  `@google-cloud/aiplatform`). Configure `GOOGLE_APPLICATION_CREDENTIALS`,
+  `PROJECT_ID`, `LOCATION`, `MODEL_NAME` puis démarrez le serveur.
+- Dans le frontend, configurez la variable d'environnement Vite `VITE_GEMINI_PROXY_URL`
+  (par ex. `http://localhost:5178/chat`) avant de lancer l'app :
+
+```powershell
+setx VITE_GEMINI_PROXY_URL "http://localhost:5178/chat"
+npm run dev
+```
+
+Le client enverra alors le texte de l'utilisateur au proxy et affichera la
+réponse du modèle. Si `VITE_GEMINI_PROXY_URL` n'est pas défini, le chatbot
+utilisera un fallback local.
 ```
