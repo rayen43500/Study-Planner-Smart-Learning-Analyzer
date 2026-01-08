@@ -24,11 +24,11 @@ class ProductivityAnalyzerTest {
 	void setUp() {
 		analyzer = new ProductivityAnalyzer();
 		testUser = User.builder()
-				.id("user1")
+				.id(1L)
 				.username("testuser")
 				.build();
 		testSubject = Subject.builder()
-				.id("sub1")
+				.id(1L)
 				.name("Maths")
 				.build();
 	}

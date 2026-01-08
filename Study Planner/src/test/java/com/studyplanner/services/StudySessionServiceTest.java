@@ -38,14 +38,14 @@ class StudySessionServiceTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
-				.id("user1")
+				.id(1L)
 				.username("testuser")
 				.email("test@example.com")
 				.password("password")
 				.build();
 
 		testSubject = Subject.builder()
-				.id("sub1")
+				.id(1L)
 				.name("Maths")
 				.user(testUser)
 				.build();
@@ -61,7 +61,7 @@ class StudySessionServiceTest {
 		dto.setStartMinute(0);
 
 		StudySession savedSession = StudySession.builder()
-				.id("session1")
+				.id(1L)
 				.user(testUser)
 				.subject(testSubject)
 				.durationMinutes(60)
@@ -91,19 +91,19 @@ class StudySessionServiceTest {
 		LocalDate date3 = LocalDate.of(2025, 1, 10);
 
 		StudySession session1 = StudySession.builder()
-				.id("s1")
+				.id(1L)
 				.user(testUser)
 				.subject(testSubject)
 				.date(date1)
 				.build();
 		StudySession session2 = StudySession.builder()
-				.id("s2")
+				.id(2L)
 				.user(testUser)
 				.subject(testSubject)
 				.date(date2)
 				.build();
 		StudySession session3 = StudySession.builder()
-				.id("s3")
+				.id(3L)
 				.user(testUser)
 				.subject(testSubject)
 				.date(date3)
@@ -125,7 +125,7 @@ class StudySessionServiceTest {
 	@Test
 	void getOwnedSession_WithValidId_ShouldReturnSession() {
 		// Given
-		String sessionId = "session1";
+		Long sessionId = 1L;
 		StudySession session = StudySession.builder()
 				.id(sessionId)
 				.user(testUser)
@@ -145,7 +145,7 @@ class StudySessionServiceTest {
 	@Test
 	void getOwnedSession_WithInvalidId_ShouldThrowException() {
 		// Given
-		String sessionId = "invalid";
+		Long sessionId = 999L;
 		when(studySessionRepository.findById(sessionId)).thenReturn(Optional.empty());
 
 		// When/Then
@@ -157,8 +157,8 @@ class StudySessionServiceTest {
 	@Test
 	void getOwnedSession_WithDifferentUser_ShouldThrowException() {
 		// Given
-		String sessionId = "session1";
-		User otherUser = User.builder().id("user2").build();
+		Long sessionId = 1L;
+		User otherUser = User.builder().id(2L).build();
 		StudySession session = StudySession.builder()
 				.id(sessionId)
 				.user(otherUser)
@@ -176,7 +176,7 @@ class StudySessionServiceTest {
 	@Test
 	void deleteSession_WithValidId_ShouldDelete() {
 		// Given
-		String sessionId = "session1";
+		Long sessionId = 1L;
 		StudySession session = StudySession.builder()
 				.id(sessionId)
 				.user(testUser)

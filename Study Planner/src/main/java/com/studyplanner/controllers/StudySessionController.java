@@ -93,7 +93,7 @@ public class StudySessionController {
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteSession(@PathVariable String id, RedirectAttributes redirectAttributes) {
+	public String deleteSession(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 		var user = userService.getCurrentUser();
 		try {
 			studySessionService.deleteSession(user, id);
@@ -106,7 +106,7 @@ public class StudySessionController {
 
 	private void populateSubjects(Model model, User user, StudySessionDTO dto) {
 		var subjects = subjectService.findForUser(user);
-		if (!subjects.isEmpty() && (dto.getSubjectId() == null || dto.getSubjectId().isBlank())) {
+		if (!subjects.isEmpty() && dto.getSubjectId() == null) {
 			dto.setSubjectId(subjects.get(0).getId());
 		}
 		model.addAttribute("session", dto);
@@ -116,7 +116,7 @@ public class StudySessionController {
 
 	private void ensureSubjectSelected(Model model, User user, StudySessionDTO dto) {
 		var subjects = subjectService.findForUser(user);
-		if (!StringUtils.hasText(dto.getSubjectId()) && !subjects.isEmpty()) {
+		if (dto.getSubjectId() == null && !subjects.isEmpty()) {
 			dto.setSubjectId(subjects.get(0).getId());
 		}
 		if (subjects.isEmpty()) {

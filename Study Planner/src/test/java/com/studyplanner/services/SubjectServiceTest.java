@@ -34,7 +34,7 @@ class SubjectServiceTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
-				.id("user1")
+				.id(1L)
 				.username("testuser")
 				.email("test@example.com")
 				.password("password")
@@ -48,7 +48,7 @@ class SubjectServiceTest {
 				.name("Maths")
 				.build();
 		Subject savedSubject = Subject.builder()
-				.id("sub1")
+				.id(1L)
 				.name("Maths")
 				.user(testUser)
 				.build();
@@ -93,7 +93,7 @@ class SubjectServiceTest {
 		when(subjectRepository.save(any(Subject.class))).thenAnswer(invocation -> {
 			Subject s = invocation.getArgument(0);
 			return Subject.builder()
-					.id("id" + System.currentTimeMillis())
+					.id(System.currentTimeMillis())
 					.name(s.getName())
 					.user(s.getUser())
 					.build();
@@ -110,7 +110,7 @@ class SubjectServiceTest {
 	@Test
 	void getOwnedSubject_WithValidId_ShouldReturnSubject() {
 		// Given
-		String subjectId = "sub1";
+		Long subjectId = 1L;
 		Subject subject = Subject.builder()
 				.id(subjectId)
 				.name("Maths")
@@ -130,7 +130,7 @@ class SubjectServiceTest {
 	@Test
 	void getOwnedSubject_WithInvalidId_ShouldThrowException() {
 		// Given
-		String subjectId = "invalid";
+		Long subjectId = 999L;
 		when(subjectRepository.findById(subjectId)).thenReturn(Optional.empty());
 
 		// When/Then
@@ -142,8 +142,8 @@ class SubjectServiceTest {
 	@Test
 	void getOwnedSubject_WithDifferentUser_ShouldThrowException() {
 		// Given
-		String subjectId = "sub1";
-		User otherUser = User.builder().id("user2").build();
+		Long subjectId = 1L;
+		User otherUser = User.builder().id(2L).build();
 		Subject subject = Subject.builder()
 				.id(subjectId)
 				.name("Maths")
@@ -161,7 +161,7 @@ class SubjectServiceTest {
 	@Test
 	void deleteSubject_WithValidId_ShouldDelete() {
 		// Given
-		String subjectId = "sub1";
+		Long subjectId = 1L;
 		Subject subject = Subject.builder()
 				.id(subjectId)
 				.name("Maths")

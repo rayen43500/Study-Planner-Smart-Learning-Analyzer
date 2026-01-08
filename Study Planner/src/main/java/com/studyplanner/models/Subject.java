@@ -1,18 +1,16 @@
 package com.studyplanner.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "subjects")
+@Entity
+@Table(name = "subjects")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,13 +19,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Subject {
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@NotBlank
-	@Indexed
+	@Column(nullable = false, length = 100)
 	private String name;
 
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
 	@JsonIgnore
 	private User user;
 }

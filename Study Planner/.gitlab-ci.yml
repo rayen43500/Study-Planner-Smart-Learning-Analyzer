@@ -36,10 +36,8 @@ build:
 unit-tests:
   stage: test
   image: maven:3.9-eclipse-temurin-21
-  services:
-    - mongo:7.0
   variables:
-    SPRING_DATA_MONGODB_URI: "mongodb://mongo:27017/testdb"
+    SPRING_PROFILES_ACTIVE: test
   script:
     - mvn test -Dtest=**/*Test
   coverage: '/Total.*?([0-9]{1,3})%/'
@@ -59,9 +57,13 @@ integration-tests:
   stage: test
   image: maven:3.9-eclipse-temurin-21
   services:
-    - mongo:7.0
+    - mysql:8.0
   variables:
-    SPRING_DATA_MONGODB_URI: "mongodb://mongo:27017/testdb"
+    SPRING_PROFILES_ACTIVE: test
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: testdb
+    MYSQL_USER: testuser
+    MYSQL_PASSWORD: testpass
   script:
     - mvn test -Dtest=**/*RepositoryTest
   artifacts:
@@ -79,10 +81,8 @@ integration-tests:
 sonarqube-check:
   stage: quality
   image: maven:3.9-eclipse-temurin-21
-  services:
-    - mongo:7.0
   variables:
-    SPRING_DATA_MONGODB_URI: "mongodb://mongo:27017/testdb"
+    SPRING_PROFILES_ACTIVE: test
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
   cache:
     key: "${CI_JOB_NAME}"

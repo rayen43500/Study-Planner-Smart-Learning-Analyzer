@@ -67,19 +67,19 @@ public class UserService {
 				.build();
 		System.out.println("[DEBUG] Objet User créé (avant sauvegarde)");
 
-		// Sauvegarder en MongoDB
-		System.out.println("[DEBUG] >>> Début de la sauvegarde en MongoDB...");
+		// Sauvegarder en MySQL
+		System.out.println("[DEBUG] >>> Début de la sauvegarde en MySQL...");
 		try {
 			User savedUser = userRepository.save(user);
 			System.out.println("[DEBUG] ✓✓✓ Utilisateur SAUVEGARDÉ avec succès! ✓✓✓");
-			System.out.println("[DEBUG] ID MongoDB: " + savedUser.getId());
+			System.out.println("[DEBUG] ID MySQL: " + savedUser.getId());
 			System.out.println("[DEBUG] Username: " + savedUser.getUsername());
 			System.out.println("[DEBUG] Email: " + savedUser.getEmail());
 			
 			// Vérification immédiate que l'utilisateur est bien en base
 			Optional<User> verify = userRepository.findById(savedUser.getId());
 			if (verify.isPresent()) {
-				System.out.println("[DEBUG] ✓✓✓ VÉRIFICATION RÉUSSIE: Utilisateur trouvé en base de données MongoDB! ✓✓✓");
+				System.out.println("[DEBUG] ✓✓✓ VÉRIFICATION RÉUSSIE: Utilisateur trouvé en base de données MySQL! ✓✓✓");
 			} else {
 				System.out.println("[DEBUG] ❌❌❌ ERREUR CRITIQUE: Utilisateur NON trouvé après sauvegarde! ❌❌❌");
 			}

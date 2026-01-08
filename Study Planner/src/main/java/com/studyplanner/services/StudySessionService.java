@@ -37,13 +37,13 @@ public class StudySessionService {
 		return studySessionRepository.save(session);
 	}
 
-	public StudySession getOwnedSession(User user, String id) {
+	public StudySession getOwnedSession(User user, Long id) {
 		return studySessionRepository.findById(id)
 				.filter(s -> s.getUser().getId().equals(user.getId()))
 				.orElseThrow(() -> new IllegalArgumentException("Session introuvable"));
 	}
 
-	public void deleteSession(User user, String id) {
+	public void deleteSession(User user, Long id) {
 		studySessionRepository.delete(getOwnedSession(user, id));
 	}
 

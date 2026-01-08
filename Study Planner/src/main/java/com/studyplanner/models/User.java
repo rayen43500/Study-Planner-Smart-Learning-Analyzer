@@ -1,19 +1,20 @@
 package com.studyplanner.models;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection = "users")
+@Entity
+@Table(name = "users", uniqueConstraints = {
+		@UniqueConstraint(columnNames = "username"),
+		@UniqueConstraint(columnNames = "email")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,17 +23,22 @@ import java.util.Set;
 public class User {
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	@Indexed(unique = true)
+	@Column(nullable = false, unique = true, length = 50)
 	private String username;
 
-	@Indexed(unique = true)
+	@Column(nullable = false, unique = true, length = 100)
 	private String email;
 
+	@Column(nullable = false, length = 255)
 	private String password;
 
-	@DBRef
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_roles",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id"))
 	@Builder.Default
 	private Set<Role> roles = new HashSet<>();
 }

@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class UserDetailsImpl implements UserDetails {
 
-	private final String id;
+	private final Long id;
 	private final String username;
 	private final String email;
 	private final String password;
 	private final Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl(String id, String username, String email, String password,
+	public UserDetailsImpl(Long id, String username, String email, String password,
 	                       Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.username = username;

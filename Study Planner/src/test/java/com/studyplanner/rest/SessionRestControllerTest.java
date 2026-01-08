@@ -51,14 +51,14 @@ class SessionRestControllerTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
-				.id("user1")
+				.id(1L)
 				.username("testuser")
 				.email("test@example.com")
 				.password("password")
 				.build();
 
 		testSubject = Subject.builder()
-				.id("sub1")
+				.id(1L)
 				.name("Maths")
 				.user(testUser)
 				.build();
@@ -72,7 +72,7 @@ class SessionRestControllerTest {
 		// Given
 		List<StudySession> sessions = Arrays.asList(
 				StudySession.builder()
-						.id("s1")
+						.id(1L)
 						.user(testUser)
 						.subject(testSubject)
 						.durationMinutes(60)
@@ -95,7 +95,7 @@ class SessionRestControllerTest {
 	@WithMockUser
 	void getSession_WithValidId_ShouldReturnSession() throws Exception {
 		// Given
-		String sessionId = "s1";
+		Long sessionId = 1L;
 		StudySession session = StudySession.builder()
 				.id(sessionId)
 				.user(testUser)
@@ -110,7 +110,7 @@ class SessionRestControllerTest {
 		mockMvc.perform(get("/api/sessions/{id}", sessionId)
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value(sessionId))
+				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.durationMinutes").value(60));
 
 		verify(studySessionService).getOwnedSession(testUser, sessionId);
@@ -121,21 +121,21 @@ class SessionRestControllerTest {
 	void createSession_WithValidData_ShouldCreate() throws Exception {
 		// Given
 		StudySessionDTO dto = new StudySessionDTO();
-		dto.setSubjectId("sub1");
+		dto.setSubjectId(1L);
 		dto.setDurationMinutes(60);
 		dto.setDate(LocalDate.of(2025, 1, 15));
 		dto.setStartHour(10);
 		dto.setStartMinute(0);
 
 		StudySession savedSession = StudySession.builder()
-				.id("s1")
+				.id(1L)
 				.user(testUser)
 				.subject(testSubject)
 				.durationMinutes(60)
 				.date(LocalDate.of(2025, 1, 15))
 				.build();
 
-		when(subjectService.getOwnedSubject(testUser, "sub1")).thenReturn(testSubject);
+		when(subjectService.getOwnedSubject(testUser, 1L)).thenReturn(testSubject);
 		when(studySessionService.saveSession(any(User.class), any(Subject.class), any(StudySessionDTO.class)))
 				.thenReturn(savedSession);
 
@@ -145,7 +145,7 @@ class SessionRestControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(dto)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value("s1"))
+				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.durationMinutes").value(60));
 
 		verify(studySessionService).saveSession(testUser, testSubject, dto);
@@ -155,7 +155,7 @@ class SessionRestControllerTest {
 	@WithMockUser
 	void deleteSession_WithValidId_ShouldDelete() throws Exception {
 		// Given
-		String sessionId = "s1";
+		Long sessionId = 1L;
 		doNothing().when(studySessionService).deleteSession(testUser, sessionId);
 
 		// When/Then

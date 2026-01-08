@@ -1,18 +1,17 @@
 package com.studyplanner.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 
-@Document(collection = "study_sessions")
+@Entity
+@Table(name = "study_sessions")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,18 +20,24 @@ import java.time.LocalDate;
 public class StudySession {
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "subject_id", nullable = false)
 	private Subject subject;
 
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
 	@JsonIgnore
 	private User user;
 
+	@Column(nullable = false)
 	private int durationMinutes;
 
+	@Column(nullable = false)
 	private LocalDate date;
+	
 	private Integer startHour;
 
 	private Integer startMinute;

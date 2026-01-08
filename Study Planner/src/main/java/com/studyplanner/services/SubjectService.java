@@ -55,13 +55,13 @@ public class SubjectService {
 		return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
 	}
 
-	public Subject getOwnedSubject(User user, String id) {
+	public Subject getOwnedSubject(User user, Long id) {
 		return subjectRepository.findById(id)
 				.filter(subject -> subject.getUser().getId().equals(user.getId()))
 				.orElseThrow(() -> new IllegalArgumentException("Matière introuvable"));
 	}
 
-	public void deleteSubject(User user, String id) {
+	public void deleteSubject(User user, Long id) {
 		Subject subject = getOwnedSubject(user, id);
 		subjectRepository.delete(subject);
 	}

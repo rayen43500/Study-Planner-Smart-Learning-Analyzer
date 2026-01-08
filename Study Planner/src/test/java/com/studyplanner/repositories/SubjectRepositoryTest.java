@@ -6,13 +6,15 @@ import com.studyplanner.services.SubjectService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-@DataMongoTest
+@DataJpaTest
 @Import(SubjectService.class)
+@ActiveProfiles("test")
 class SubjectRepositoryTest {
 
 	@Autowired
@@ -22,7 +24,7 @@ class SubjectRepositoryTest {
 	private UserRepository userRepository;
 
 	@Test
-	void savesMultipleSubjectsForSameUserInMongo() {
+	void savesMultipleSubjectsForSameUser() {
 		User user = userRepository.save(User.builder()
 				.username("teamlife")
 				.email("teamlife@example.com")

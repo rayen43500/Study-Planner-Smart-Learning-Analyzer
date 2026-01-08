@@ -43,7 +43,7 @@ class SubjectRestControllerTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
-				.id("user1")
+				.id(1L)
 				.username("testuser")
 				.email("test@example.com")
 				.password("password")
@@ -57,8 +57,8 @@ class SubjectRestControllerTest {
 	void listSubjects_ShouldReturnList() throws Exception {
 		// Given
 		List<Subject> subjects = Arrays.asList(
-				Subject.builder().id("sub1").name("Maths").user(testUser).build(),
-				Subject.builder().id("sub2").name("Physics").user(testUser).build()
+				Subject.builder().id(1L).name("Maths").user(testUser).build(),
+				Subject.builder().id(2L).name("Physics").user(testUser).build()
 		);
 		when(subjectService.findForUser(testUser)).thenReturn(subjects);
 
@@ -81,7 +81,7 @@ class SubjectRestControllerTest {
 				.name("Maths")
 				.build();
 		Subject savedSubject = Subject.builder()
-				.id("sub1")
+				.id(1L)
 				.name("Maths")
 				.user(testUser)
 				.build();
@@ -95,7 +95,7 @@ class SubjectRestControllerTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(subject)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id").value("sub1"))
+				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.name").value("Maths"));
 
 		verify(subjectService).saveSubject(testUser, subject);
@@ -105,7 +105,7 @@ class SubjectRestControllerTest {
 	@WithMockUser
 	void deleteSubject_WithValidId_ShouldDelete() throws Exception {
 		// Given
-		String subjectId = "sub1";
+		Long subjectId = 1L;
 		doNothing().when(subjectService).deleteSubject(testUser, subjectId);
 
 		// When/Then

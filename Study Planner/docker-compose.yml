@@ -1,23 +1,27 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: study-planner-mongodb
+  mysql:
+    image: mysql:8.0
+    container_name: study-planner-mysql
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "3306:3306"
     environment:
-      MONGO_INITDB_DATABASE: studyplanner
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: studyplanner
+      MYSQL_USER: studyplanner
+      MYSQL_PASSWORD: studyplanner
     volumes:
-      - mongodb_data:/data/db
+      - mysql_data:/var/lib/mysql
     networks:
       - study-planner-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: --default-authentication-plugin=mysql_native_password
 
   app:
     build:
@@ -28,11 +32,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/studyplanner?w=1&journal=true
+      SPRING_PROFILES_ACTIVE: docker
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
       APP_JWT_SECRET: ${APP_JWT_SECRET:-MY_SECRET_KEY_2025}
       APP_JWT_EXPIRATION: ${APP_JWT_EXPIRATION:-3600000}
     depends_on:
-      mongodb:
+      mysql:
         condition: service_healthy
     networks:
       - study-planner-network
@@ -44,7 +50,7 @@ services:
       start_period: 40s
 
 volumes:
-  mongodb_data:
+  mysql_data:
     driver: local
 
 networks:

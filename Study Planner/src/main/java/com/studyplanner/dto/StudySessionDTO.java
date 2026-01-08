@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Setter
 public class StudySessionDTO {
 
-	private String subjectId;
+	private Long subjectId;
 
 	@Min(1)
 	private int durationMinutes;
