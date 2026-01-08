@@ -10,6 +10,7 @@ const Chatbot: React.FC = () => {
     { from: 'bot', text: "Bonjour ! Je suis ton assistant d'étude. Tape `aide` pour voir les commandes." },
   ])
   const [value, setValue] = useState('')
+  const hasLiveModel = Boolean(import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_PROXY_URL)
 
   const push = (m: Msg) => setMessages((s) => [...s, m])
   const msgsRef = useRef<HTMLDivElement | null>(null)
@@ -91,6 +92,14 @@ const Chatbot: React.FC = () => {
 
   return (
     <div className="chatbot">
+      <div className="statusRow">
+        <div className="statusBadge">
+          {hasLiveModel ? 'Gemini Flash 2.5 connecté' : 'Mode hors-ligne'}
+        </div>
+        <div className="statusHint">
+          {hasLiveModel ? 'Les réponses sont générées par Gemini.' : 'Ajoute ta clé ou un proxy pour activer Gemini.'}
+        </div>
+      </div>
       <div className="messages" ref={msgsRef}>
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.from}`}>

@@ -22,7 +22,9 @@ const {PredictionServiceClient} = require('@google-cloud/aiplatform').v1
 const PORT = process.env.PORT || 5178
 const PROJECT = process.env.PROJECT_ID || 'YOUR_PROJECT'
 const LOCATION = process.env.LOCATION || 'us-central1'
-const MODEL = process.env.MODEL_NAME || 'models/gemini-1.5-flash' // adjust if needed
+// For Gemini via Vertex AI, model id should NOT include "models/" prefix.
+// Example: "gemini-2.5-flash" or "gemini-1.5-flash-002".
+const MODEL = process.env.MODEL_NAME || 'gemini-2.5-flash'
 
 const app = express()
 app.use(bodyParser.json())
@@ -34,21 +36,36 @@ app.post('/chat', async (req, res) => {
   if (!prompt) return res.status(400).json({ error: 'prompt required' })
 
   try {
-    const endpoint = `projects/${PROJECT}/locations/${LOCATION}/models/${MODEL}`
+    // Vertex AI Gemini predict endpoint path
+    const endpoint = `projects/${PROJECT}/locations/${LOCATION}/publishers/google/models/${MODEL}`
+
+    // Request format for Gemini with predict: content schema
     const request = {
       endpoint,
       instances: [
-        { content: prompt }
+        {
+          content: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }],
+            },
+          ],
+        },
       ],
-      // parameters may differ depending on model; adjust accordingly
-      parameters: { temperature: 0.2, maxOutputTokens: 512 }
+      parameters: {
+        temperature: 0.2,
+        maxOutputTokens: 512,
+        topP: 0.95,
+        topK: 40,
+      },
     }
 
     const [response] = await client.predict(request)
-    // response.predictions structure may vary; inspect in your project
-    const predictions = response.predictions && response.predictions[0]
-    // try to extract text
-    const reply = (predictions && (predictions.content || predictions.text || JSON.stringify(predictions))) || 'No reply'
+    const prediction = response?.predictions?.[0]
+    const candidateContent = prediction?.content?.[0]
+    const candidateParts = candidateContent?.parts || []
+    const text = candidateParts.map((p) => p.text).filter(Boolean).join('').trim()
+    const reply = text || JSON.stringify(prediction) || 'No reply'
     return res.json({ reply })
   } catch (err) {
     console.error(err)

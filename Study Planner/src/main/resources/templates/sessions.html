@@ -39,23 +39,23 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="session : ${sessions}">
+                <tr th:each="sess : ${sessions}">
                     <td>
-                        <span th:if="${session.subject != null and session.subject.name != null}" th:text="${session.subject.name}">Maths</span>
-                        <span th:if="${session.subject == null or session.subject.name == null}" class="text-muted">Matière supprimée</span>
+                        <span th:if="${sess.subject != null and sess.subject.name != null}" th:text="${sess.subject.name}">Maths</span>
+                        <span th:if="${sess.subject == null or sess.subject.name == null}" class="text-muted">Matière supprimée</span>
                     </td>
-                    <td th:text="${session.date}">2024-01-01</td>
-                    <td><span th:text="${session.durationMinutes}">60</span> min</td>
+                    <td th:text="${sess.date}">2024-01-01</td>
+                    <td><span th:text="${sess.durationMinutes}">60</span> min</td>
                     <td>
-                        <span th:if="${session.startHour != null}">
-                            <span th:text="${session.startHour}"></span>h
-                            <span th:text="${session.startMinute != null ? session.startMinute : 0}"></span>
+                        <span th:if="${sess.startHour != null}">
+                            <span th:text="${sess.startHour}"></span>h
+                            <span th:text="${sess.startMinute != null ? sess.startMinute : 0}"></span>
                         </span>
-                        <span th:if="${session.startHour == null}">-</span>
+                        <span th:if="${sess.startHour == null}">-</span>
                     </td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-danger"
-                           th:href="@{/sessions/delete/{id}(id=${session.id})}">Supprimer</a>
+                           th:href="@{/sessions/delete/{id}(id=${sess.id})}">Supprimer</a>
                     </td>
                 </tr>
                 </tbody>
@@ -72,24 +72,24 @@
             Les sessions planifiées apparaîtront ici dès qu'elles seront enregistrées.
         </div>
         <div th:if="${sessions != null and !sessions.isEmpty()}" class="timeline">
-            <div class="timeline-item" th:each="session, iter : ${sessions}" th:if="${iter.index} < 5">
+            <div class="timeline-item" th:each="sess, iter : ${sessions}" th:if="${iter.index} < 5">
                 <div class="timeline-bullet"></div>
                 <div class="timeline-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <strong>
-                            <span th:if="${session.subject != null and session.subject.name != null}" th:text="${session.subject.name}">Maths</span>
-                            <span th:if="${session.subject == null or session.subject.name == null}" class="text-muted">Matière supprimée</span>
+                            <span th:if="${sess.subject != null and sess.subject.name != null}" th:text="${sess.subject.name}">Maths</span>
+                            <span th:if="${sess.subject == null or sess.subject.name == null}" class="text-muted">Matière supprimée</span>
                         </strong>
-                        <span class="tag" th:text="${session.durationMinutes} + ' min'">45 min</span>
+                        <span class="tag" th:text="${sess.durationMinutes} + ' min'">45 min</span>
                     </div>
                     <p class="mb-0 text-muted">
-                        <span th:text="${session.date}">2024-01-01</span>
+                        <span th:text="${sess.date}">2024-01-01</span>
                         •
-                        <span th:if="${session.startHour != null}">
-                            <span th:text="${session.startHour}"></span>h
-                            <span th:text="${session.startMinute != null ? session.startMinute : 0}"></span>
+                        <span th:if="${sess.startHour != null}">
+                            <span th:text="${sess.startHour}"></span>h
+                            <span th:text="${sess.startMinute != null ? sess.startMinute : 0}"></span>
                         </span>
-                        <span th:if="${session.startHour == null}">Heure libre</span>
+                        <span th:if="${sess.startHour == null}">Heure libre</span>
                     </p>
                 </div>
             </div>

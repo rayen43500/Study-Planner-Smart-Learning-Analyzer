@@ -1,6 +1,7 @@
 package com.studyplanner.controllers;
 
 import com.studyplanner.dto.StudySessionDTO;
+import com.studyplanner.models.User;
 import com.studyplanner.services.StudySessionService;
 import com.studyplanner.services.SubjectService;
 import com.studyplanner.services.UserService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,17 +50,11 @@ public class StudySessionController {
 	@GetMapping("/add")
 	public String addSession(Model model) {
 		var user = userService.getCurrentUser();
-		var subjects = subjectService.findForUser(user);
 		StudySessionDTO dto = new StudySessionDTO();
 		dto.setDate(LocalDate.now());
 		dto.setStartHour(9);
 		dto.setStartMinute(0);
-		if (!subjects.isEmpty()) {
-			dto.setSubjectId(subjects.get(0).getId());
-		}
-		model.addAttribute("session", dto);
-		model.addAttribute("subjects", subjects);
-		model.addAttribute("hasSubjects", !subjects.isEmpty());
+		populateSubjects(model, user, dto);
 		return "add-session";
 	}
 
@@ -70,11 +66,10 @@ public class StudySessionController {
 			HttpServletRequest request,
 			@RequestParam(value = "stayOnPage", required = false) String stayOnPage) {
 		var user = userService.getCurrentUser();
+		ensureSubjectSelected(model, user, dto);
 		if (bindingResult.hasErrors()) {
 			// add subjects back for the form
-			var subjects = subjectService.findForUser(user);
-			model.addAttribute("subjects", subjects);
-			model.addAttribute("hasSubjects", !subjects.isEmpty());
+			populateSubjects(model, user, dto);
 			// log submitted parameters to help debug why subjectId may be empty
 			var params = request.getParameterMap();
 			System.out.println("[DEBUG] createSession binding errors. Request parameters:");
@@ -91,9 +86,7 @@ public class StudySessionController {
 			}
 			return "redirect:/sessions";
 		} catch (IllegalArgumentException e) {
-			var subjects = subjectService.findForUser(user);
-			model.addAttribute("subjects", subjects);
-			model.addAttribute("hasSubjects", !subjects.isEmpty());
+			populateSubjects(model, user, dto);
 			model.addAttribute("errorMessage", e.getMessage());
 			return "add-session";
 		}
@@ -109,6 +102,28 @@ public class StudySessionController {
 			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
 		}
 		return "redirect:/sessions";
+	}
+
+	private void populateSubjects(Model model, User user, StudySessionDTO dto) {
+		var subjects = subjectService.findForUser(user);
+		if (!subjects.isEmpty() && (dto.getSubjectId() == null || dto.getSubjectId().isBlank())) {
+			dto.setSubjectId(subjects.get(0).getId());
+		}
+		model.addAttribute("session", dto);
+		model.addAttribute("subjects", subjects);
+		model.addAttribute("hasSubjects", !subjects.isEmpty());
+	}
+
+	private void ensureSubjectSelected(Model model, User user, StudySessionDTO dto) {
+		var subjects = subjectService.findForUser(user);
+		if (!StringUtils.hasText(dto.getSubjectId()) && !subjects.isEmpty()) {
+			dto.setSubjectId(subjects.get(0).getId());
+		}
+		if (subjects.isEmpty()) {
+			model.addAttribute("subjects", subjects);
+			model.addAttribute("hasSubjects", false);
+			throw new IllegalArgumentException("Veuillez créer une matière avant de planifier une session.");
+		}
 	}
 }
 

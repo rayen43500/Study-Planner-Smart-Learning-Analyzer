@@ -23,6 +23,7 @@
         </div>
 
         <form th:action="@{/sessions}" th:object="${session}" method="post" id="addSessionForm" class="form-shell">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <fieldset th:attr="disabled=${!hasSubjects} ? 'disabled' : null">
                 <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
                     <ul class="mb-0">
@@ -74,15 +75,8 @@
             const subject = form.querySelector('select[name="subjectId"]');
             const hour = form.querySelector('input[name="startHour"]');
             const minute = form.querySelector('input[name="startMinute"]');
-            if (subject && subject.disabled) {
-                return;
-            }
-            if (subject && !subject.value) {
-                e.preventDefault();
-                alert('Veuillez sélectionner une matière.');
-                subject.focus();
-                return false;
-            }
+            // Le serveur valide déjà la matière et en sélectionne une par défaut
+            // si disponible. On ne bloque plus côté client pour éviter de faux positifs.
             if (hour) {
                 const h = parseInt(hour.value, 10);
                 if (isNaN(h) || h < 0 || h > 23) {
