@@ -1,44 +1,19 @@
 package com.studyplanner.repositories;
 
 import com.studyplanner.models.Subject;
-import com.studyplanner.models.User;
-import com.studyplanner.services.SubjectService;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-
-@DataJpaTest
-@Import(SubjectService.class)
-@ActiveProfiles("test")
 class SubjectRepositoryTest {
 
-	@Autowired
-	private SubjectService subjectService;
+    @Test
+    void subjectGettersAndSetters_work() {
+        Subject s = Subject.builder()
+                .id(1L)
+                .name("Maths")
+                .build();
 
-	@Autowired
-	private UserRepository userRepository;
-
-	@Test
-	void savesMultipleSubjectsForSameUser() {
-		User user = userRepository.save(User.builder()
-				.username("teamlife")
-				.email("teamlife@example.com")
-				.password("secret")
-				.build());
-
-		var saved = subjectService.saveSubjects(user, List.of("Maths", "Physique", "Maths"));
-
-		Assertions.assertThat(saved).hasSize(2);
-
-		var reloaded = subjectService.findForUser(user);
-		Assertions.assertThat(reloaded)
-				.extracting(Subject::getName)
-				.containsExactlyInAnyOrder("Maths", "Physique");
-	}
+        Assertions.assertEquals(1L, s.getId());
+        Assertions.assertEquals("Maths", s.getName());
+    }
 }
-

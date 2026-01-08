@@ -111,6 +111,7 @@ spotbugs:
   stage: quality
   image: maven:3.9-eclipse-temurin-21
   script:
+    - mvn dependency:resolve
     - mvn clean compile spotbugs:check
   artifacts:
     reports:

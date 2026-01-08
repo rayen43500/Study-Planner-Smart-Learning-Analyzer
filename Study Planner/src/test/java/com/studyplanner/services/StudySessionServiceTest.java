@@ -200,7 +200,7 @@ class StudySessionServiceTest {
 		LocalDate end = LocalDate.of(2025, 1, 20);
 
 		StudySession session1 = StudySession.builder()
-				.id("s1")
+				.id(4L)
 				.user(testUser)
 				.subject(testSubject)
 				.date(LocalDate.of(2025, 1, 15))
